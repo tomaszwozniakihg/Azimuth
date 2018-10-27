@@ -266,7 +266,7 @@ def setup(test=False, order=1, learn_options=None, data_file=None, pam_audit=Tru
         learn_options["order"] = 1
 
     if 'convert_30mer_to_31mer' in learn_options and learn_options['convert_30mer_to_31mer'] is True:
-        print "WARNING!!! converting 30 mer to 31 mer (and then cutting off first nucleotide to go back to 30mer with a right shift)"
+        print("WARNING!!! converting 30 mer to 31 mer (and then cutting off first nucleotide to go back to 30mer with a right shift)")
         for i in range(Xdf.shape[0]):
             Xdf['30mer'].iloc[i] = azimuth.util.convert_to_thirty_one(Xdf.iloc[i]["30mer"], Xdf.index.values[i][1], Xdf.iloc[i]["Strand"])
         # to_keep = Xdf['30mer'].isnull() == False
@@ -307,7 +307,7 @@ def run_models(models, orders, GP_likelihoods=['gaussian', 'warped'], WD_kernel_
                          "logregL1": "logregL1", "sgrna_from_doench":"sgrna_from_doench", 'SVC': 'SVC', 'xu_et_al': 'xu_et_al'}
 
     if not CV:
-        print "Received option CV=False, so I'm training using all of the data"
+        print("Received option CV=False, so I'm training using all of the data")
         assert len(learn_options_set.keys()) == 1, "when CV is False, only 1 set of learn options is allowed"
         assert len(models) == 1, "when CV is False, only 1 model is allowed"
 
@@ -320,10 +320,10 @@ def run_models(models, orders, GP_likelihoods=['gaussian', 'warped'], WD_kernel_
             # models requiring explicit featurization
             if model in feat_models_short.keys():
                 for order in orders:
-                    print "running %s, order %d for %s" % (model, order, learn_options_str)
+                    print("running %s, order %d for %s" % (model, order, learn_options_str))
 
                     Y, feature_sets, target_genes, learn_options, num_proc = setup_function(test=test, order=order, learn_options=partial_learn_opt, pam_audit=pam_audit, length_audit=length_audit) # TODO precompute features for all orders, as this is repated for each model
-                    
+
                     if model == 'L1':
                         learn_options_model = L1_setup(copy.deepcopy(learn_options), set_target_fn=set_target_fn)
                     elif model == 'L2':
@@ -359,7 +359,7 @@ def run_models(models, orders, GP_likelihoods=['gaussian', 'warped'], WD_kernel_
             # if the model doesn't require explicit featurization
             else:
                 assert setup_fn==setup, "not yet modified to handle this"
-                print "running %s for %s" % (model, learn_options_str)
+                print("running %s for %s" % (model, learn_options_str))
                 Y, feature_sets, target_genes, learn_options, num_proc = setup(test=test, order=1, learn_options=partial_learn_opt, pam_audit=pam_audit, length_audit=length_audit)
                 if model == 'mean':
                     learn_options_model = mean_setup(copy.deepcopy(learn_options))
@@ -392,12 +392,12 @@ def pickle_runner_results(exp_name, results, all_learn_options, relpath="/../" +
     dname = os.path.dirname(abspath) + relpath
     if not os.path.exists(dname):
         os.makedirs(dname)
-        print "Created directory: %s" % str(dname)
+        print("Created directory: %s" % str(dname))
     if exp_name is None:
         exp_name = results.keys()[0]
     myfile = dname+'/'+ exp_name + '.pickle'
     with open(myfile, 'wb') as f:
-        print "writing results to %s" % myfile
+        print("writing results to %s" % myfile)
         pickle.dump((results, all_learn_options), f, -1)
 
 def runner(models, learn_options, GP_likelihoods=None, orders=None, WD_kernel_degrees=None, where='local', cluster_user='fusi', cluster='RR1-N13-09-H44', test=False, exp_name = None, **kwargs):
@@ -550,7 +550,7 @@ def predict(seq, aa_cut=None, percent_peptide=None, model=None, model_file=None,
             model, learn_options = pickle.load(f)
     else:
         model, learn_options = model
-        
+
     learn_options["V"] = 2
 
     learn_options = override_learn_options(learn_options_override, learn_options)
@@ -567,12 +567,12 @@ def predict(seq, aa_cut=None, percent_peptide=None, model=None, model_file=None,
 
     feature_sets = feat.featurize_data(Xdf, learn_options, pandas.DataFrame(), gene_position, pam_audit=pam_audit, length_audit=length_audit)
     inputs, dim, dimsum, feature_names = azimuth.util.concatenate_feature_sets(feature_sets)
-    
-    #print "CRISPR"
+
+    #print("CRISPR")
     #pandas.DataFrame(inputs).to_csv("CRISPR.inputs.test.csv")
     #import ipdb; ipdb.set_trace()
 
-    # call to scikit-learn, returns a vector of predicted values    
+    # call to scikit-learn, returns a vector of predicted values
     preds = model.predict(inputs)
 
     # also check that predictions are not 0/1 from a classifier.predict() (instead of predict_proba() or decision_function())
@@ -609,7 +609,7 @@ def write_results(predictions, file_to_predict):
     data = pandas.read_csv(file_to_predict)
     data['predictions'] = predictions
     data.to_csv(newfile)
-    print "wrote results to %s" % newfile
+    print("wrote results to %s" % newfile)
     return data, newfile
 
 if __name__ == '__main__':

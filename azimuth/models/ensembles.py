@@ -65,7 +65,7 @@ def adaboost_on_fold(feature_sets, train, test, y, y_all, X, dim, dimsum, learn_
                          'max_features': hp.uniform('max_features', 0.05, 1.0)}
 
                 best = fmin(adaboost_scoring_bo, space, algo=tpe.suggest, max_evals=50, verbose=1)
-                print best
+                print(best)
                 clf = en.GradientBoostingRegressor(n_estimators=learn_options['adaboost_n_estimators'],
                                                    learning_rate=best['learning_rate'],
                                                    max_depth=best['max_depth'],
@@ -77,7 +77,7 @@ def adaboost_on_fold(feature_sets, train, test, y, y_all, X, dim, dimsum, learn_
                  assert not classification, "need to tweak code below to do classificaton, as above"
                  n_jobs = 20
 
-                 print "Adaboost with GridSearch"
+                 print("Adaboost with GridSearch")
                  from sklearn.grid_search import GridSearchCV
                  param_grid = {'learning_rate': [0.1, 0.05, 0.01],
                               'max_depth': [4, 5, 6, 7],
@@ -101,7 +101,7 @@ def adaboost_on_fold(feature_sets, train, test, y, y_all, X, dim, dimsum, learn_
                  est = en.GradientBoostingRegressor(loss=learn_options['adaboost_loss'], random_state=learn_options['seed'])#, n_estimators=learn_options['adaboost_n_estimators'])
                  clf = GridSearchCV(est, param_grid, n_jobs=n_jobs, verbose=1, cv=cv, scoring=spearman_scoring, iid=False)
                  clf.fit(X[train], y[train].flatten())
-                 print clf.best_params_
+                 print(clf.best_params_)
             else:
                 raise Exception("if using adaboost_CV then need to specify grid (grid search) or bo (bayesian optimization)")
 

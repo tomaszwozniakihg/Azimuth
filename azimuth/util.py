@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pandas
 import matplotlib.pylab as plt
 import pylab as pl # so can just grab qqplotting code from fastlmm directly
@@ -26,6 +27,7 @@ import sys
 import pandas as pd
 import corrstats
 
+
 def qqplot(pvals, fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=None,fixaxes=True,addlambda=True,minpval=1e-20,title=None,h1=None,figsize=[5,5],grid=True, markersize=2):
     '''
     performs a P-value QQ-plot in -log10(P-value) space
@@ -46,7 +48,7 @@ def qqplot(pvals, fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=N
         grid        boolean: use a grid? (default: True)
     Returns:   fighandle, qnull, qemp
     -----------------------------------------------------------------------
-    '''    
+    '''
     distr = 'log10'
     import pylab as pl
     if type(pvals)==list:
@@ -57,20 +59,20 @@ def qqplot(pvals, fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=N
         legendlist=legend
     else:
         legendlist = [legend]
-    
+
     if h1 is None:
-        h1=pl.figure(figsize=figsize) 
-    
+        h1=pl.figure(figsize=figsize)
+
     pl.grid(b=grid, alpha = 0.5)
-         
+
     maxval = 0
 
-    for i in xrange(len(pvallist)):        
+    for i in xrange(len(pvallist)):
         pval =pvallist[i].flatten()
         M = pval.shape[0]
         pnull = (0.5 + sp.arange(M))/M
         # pnull = np.sort(np.random.uniform(size = tests))
-                
+
         pval[pval<minpval]=minpval
         pval[pval>=1]=1
 
@@ -81,31 +83,31 @@ def qqplot(pvals, fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=N
             yl = '$\chi^2$ quantiles'
 
         if distr == 'log10':
-            qnull = -sp.log10(pnull)            
+            qnull = -sp.log10(pnull)
             qemp = -sp.log10(sp.sort(pval)) #sorts the object, returns nothing
             xl = '-log10(P) observed'
             yl = '-log10(P) expected'
         if not (sp.isreal(qemp)).all(): raise Exception("imaginary qemp found")
         if qnull.max>maxval:
-            maxval = qnull.max()                
+            maxval = qnull.max()
         pl.plot(qnull, qemp, '.', markersize=markersize)
-        #pl.plot([0,qemp.max()], [0,qemp.max()],'r')        
+        #pl.plot([0,qemp.max()], [0,qemp.max()],'r')
         if addlambda:
             lambda_gc = estimate_lambda(pval)
-            print "lambda=%1.4f" % lambda_gc
-            #pl.legend(["gc="+ '%1.3f' % lambda_gc],loc=2)   
+            print("lambda=%1.4f" % lambda_gc)
+            #pl.legend(["gc="+ '%1.3f' % lambda_gc],loc=2)
             # if there's only one method, just print the lambda
             if len(pvallist) == 1:
-                legendlist=["$\lambda_{GC}=$%1.4f" % lambda_gc]   
+                legendlist=["$\lambda_{GC}=$%1.4f" % lambda_gc]
             # otherwise add it at the end of the name
             else:
                 legendlist[i] = legendlist[i] + " ($\lambda_{GC}=$%1.4f)" % lambda_gc
 
-    addqqplotinfo(qnull,M,xl,yl,xlim,ylim,alphalevel,legendlist,fixaxes)  
-    
+    addqqplotinfo(qnull,M,xl,yl,xlim,ylim,alphalevel,legendlist,fixaxes)
+
     if title is not None:
-        pl.title(title)            
-    
+        pl.title(title)
+
     if fileout is not None:
         pl.savefig(fileout)
 
@@ -116,20 +118,20 @@ def qqplotp(pv,fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=None
      '''
      Read in p-values from filein and make a qqplot adn histogram.
      If fileout is provided, saves the qqplot only at present.
-     Searches through p until one is found.   '''       
-     
-     import pylab as pl     
-     pl.ion()     
-     
-     fs=8     
+     Searches through p until one is found.   '''
+
+     import pylab as pl
+     pl.ion()
+
+     fs=8
      h1=qqplot(pv, fileout, alphalevel,legend,xlim,ylim,addlambda=True, figsize=figsize, markersize=markersize)
      #lambda_gc=estimate_lambda(pv)
-     #pl.legend(["gc="+ '%1.3f' % lambda_gc],loc=2)     
+     #pl.legend(["gc="+ '%1.3f' % lambda_gc],loc=2)
      pl.title(title,fontsize=fs)
-     
+
      wm=pl.get_current_fig_manager()
      #e.g. "652x526+100+10
-     xcoord=100     
+     xcoord=100
      #wm.window.wm_geometry(plotsize + "+" + str(xcoord) + "+" + str(ycoord))
 
      if dohist:
@@ -144,7 +146,7 @@ def qqplotp(pv,fileout = None, alphalevel = 0.05,legend=None,xlim=None,ylim=None
 
      return h1,h2
 
-def addqqplotinfo(qnull,M,xl='-log10(P) observed',yl='-log10(P) expected',xlim=None,ylim=None,alphalevel=0.05,legendlist=None,fixaxes=False):    
+def addqqplotinfo(qnull,M,xl='-log10(P) observed',yl='-log10(P) expected',xlim=None,ylim=None,alphalevel=0.05,legendlist=None,fixaxes=False):
     distr='log10'
     pl.plot([0,qnull.max()], [0,qnull.max()],'k')
     pl.ylabel(xl)
@@ -152,7 +154,7 @@ def addqqplotinfo(qnull,M,xl='-log10(P) observed',yl='-log10(P) expected',xlim=N
     if xlim is not None:
         pl.xlim(xlim)
     if ylim is not None:
-        pl.ylim(ylim)        
+        pl.ylim(ylim)
     if alphalevel is not None:
         if distr == 'log10':
             betaUp, betaDown, theoreticalPvals = _qqplot_bar(M=M,alphalevel=alphalevel,distr=distr)
@@ -168,7 +170,7 @@ def addqqplotinfo(qnull,M,xl='-log10(P) observed',yl='-log10(P) expected',xlim=N
             lo.set_markersize(10)
 
     if fixaxes:
-        fix_axes()        
+        fix_axes()
 
 def _qqplot_bar(M=1000000, alphalevel = 0.05,distr = 'log10'):
     '''
@@ -214,8 +216,8 @@ def _qqplot_bar(M=1000000, alphalevel = 0.05,distr = 'log10'):
 def fix_axes(buffer=0.1):
     '''
     Makes x and y max the same, and the lower limits 0.
-    '''    
-    maxlim=max(pl.xlim()[1],pl.ylim()[1])    
+    '''
+    maxlim=max(pl.xlim()[1],pl.ylim()[1])
     pl.xlim([0-buffer,maxlim+buffer])
     pl.ylim([0-buffer,maxlim+buffer])
 
@@ -232,13 +234,13 @@ def estimate_lambda(pv):
     L = (LOD2/0.456)
     return L
 
-     
-def pvalhist(pv,numbins=50,linewidth=3.0,linespec='--r', figsize=[5,5]):    
+
+def pvalhist(pv,numbins=50,linewidth=3.0,linespec='--r', figsize=[5,5]):
     '''
     Plots normalized histogram, plus theoretical null-only line.
-    '''    
-    h2=pl.figure(figsize=figsize)      
-    [nn,bins,patches]=pl.hist(pv,numbins,normed=True)    
+    '''
+    h2=pl.figure(figsize=figsize)
+    [nn,bins,patches]=pl.hist(pv,numbins,normed=True)
     pl.plot([0, 1],[1,1],linespec,linewidth=linewidth)
 
 
@@ -291,7 +293,7 @@ def guide_positional_features(guide_seq, gene, strand):
         guide_seq = guide_seq.reverse_complement()
     ind = gene_seq.find(guide_seq)
     if ind ==-1:
-        print "returning None, could not find guide %s in gene %s" % (guide_seq, gene)
+        print("returning None, could not find guide %s in gene %s" % (guide_seq, gene))
         return ""
     assert gene_seq[ind:(ind+len(guide_seq))]==guide_seq, "match not right"
     ## now get what we want from this:
@@ -310,7 +312,7 @@ def convert_to_thirty_one(guide_seq, gene, strand):
         guide_seq = guide_seq.reverse_complement()
     ind = gene_seq.find(guide_seq)
     if ind ==-1:
-        print "returning sequence+'A', could not find guide %s in gene %s" % (guide_seq, gene)
+        print("returning sequence+'A', could not find guide %s in gene %s" % (guide_seq, gene))
         return gene_seq + 'A'
     assert gene_seq[ind:(ind+len(guide_seq))]==guide_seq, "match not right"
     #new_mer = gene_seq[ind:(ind+len(guide_seq))+1] #looks correct, but is wrong, due to strand frame-of-reference
@@ -349,7 +351,7 @@ def concatenate_feature_sets(feature_sets, keys=None):
 
     if False:
         inputs.shape
-        for j in keys: print j + str(feature_sets[j].shape)
+        for j in keys: print(j + str(feature_sets[j].shape))
         import ipdb; ipdb.set_trace()
 
     #print "final size of inputs matrix is (%d, %d)" % inputs.shape
@@ -383,7 +385,7 @@ def spearmanr_nonan(x,y):
     r, p = st.spearmanr(x, y)
     if np.isnan(p):
         if len(np.unique(x))==1 or len(np.unique(y))==1:
-            print "WARNING: spearmanr is nan due to unique values, setting to 0"
+            print("WARNING: spearmanr is nan due to unique values, setting to 0")
             p = 0.0
             r = 0.0
         else:
@@ -435,7 +437,7 @@ def get_gene_sequence(gene_name):
     # records = Entrez.read(search)
 
     # if len(records['IdList']) > 1:
-    #     print "warning, multiple hits found for entrez gene search %s" % gene_name
+    #     print("warning, multiple hits found for entrez gene search %s" % gene_name)
 
     # elink = Entrez.read(Entrez.elink(dbfrom="gene", db='nucleotide', id=records['IdList'][0]))
     # nucl_id = elink[0]['LinkSetDb'][3]
@@ -446,7 +448,7 @@ def get_gene_sequence(gene_name):
     #         nucl_id = elink[0]['LinkSetDb'][0]['Link'][0]['Id']
     #         cut = True
     #     else:
-    #         print "sorry not enough information to return sequence"
+    #         print("sorry not enough information to return sequence")
     #         return None
     # else:
     #     nucl_id = nucl_id['Link'][0]['Id']
@@ -466,7 +468,7 @@ def target_genes_stats(genes=['HPRT1', 'TADA1', 'NF2', 'TADA2B', 'NF1', 'CUL3', 
     for gene in genes:
         seq = get_gene_sequence(gene)
         if seq != None:
-            print '%s \t\t\t\t len: %d \t GCcont: %.3f \t Temp: %.4f \t molweight: %.4f' % (gene, len(seq), SeqUtil.GC(seq), Tm.Tm_staluc(seq, rna=False), SeqUtil.molecular_weight(seq, 'DNA'))
+            print('%s \t\t\t\t len: %d \t GCcont: %.3f \t Temp: %.4f \t molweight: %.4f' % (gene, len(seq), SeqUtil.GC(seq), Tm.Tm_staluc(seq, rna=False), SeqUtil.molecular_weight(seq, 'DNA')))
 
 
 def ranktrafo(data):
@@ -518,7 +520,7 @@ def get_ranks(y, thresh=0.8, prefix="", flip=False, col_name='score'):
     # y_quantized = pandas.DataFrame(data=pandas.qcut(y[col_name], 5, labels=np.arange(5.0))) # quantized vector
     y_quantized = y_threshold.copy()
     y_quantized.columns = [prefix + "quantized"]
-    
+
     return y_rank, y_rank_raw, y_threshold, y_quantized
 
 def get_data(data, y_names, organism="human", target_gene=None):
@@ -1004,7 +1006,7 @@ def plot_all_metrics(metrics, gene_names, all_learn_options, save, plots=None, b
                     plt.bar(ind+(i*width), metrics[method][metric], width, color=plt.cm.Paired(1.*i/len(metrics.keys())), label=method)
 
                 median_metric = np.median(metrics[method][metric])
-                print method, metric, median_metric
+                print(method, metric, median_metric)
                 assert not np.isnan(median_metric), "found nan for %s, %s" % (method, metric)
                 if metric not in boxplot_arrays.keys():
                     boxplot_arrays[metric] = np.array(metrics[method][metric])[:, None]
@@ -1061,7 +1063,7 @@ def load_results(directory, all_results, all_learn_options, model_filter=None, a
     if filelist ==[]:
         raise Exception("found no pickle files in %s" % directory)
     else:
-        print "found %d files in %s" % (len(filelist), directory)
+        print("found %d files in %s" % (len(filelist), directory))
 
     for results_file in filelist:
         if 'learn_options' in results_file:
@@ -1074,7 +1076,7 @@ def load_results(directory, all_results, all_learn_options, model_filter=None, a
                     if m in results_file:
                         in_filt = True
                 if not in_filt:
-                    print "%s not in model_filter" % (results_file)#, model_filter)
+                    print("%s not in model_filter" % (results_file))#, model_filter)
                     continue
             elif model_filter not in results_file:
                 continue
@@ -1094,7 +1096,7 @@ def load_results(directory, all_results, all_learn_options, model_filter=None, a
             else:
                 k_new = k
             assert k_new not in all_results.keys(), "found %s already" % k
-            print "adding key %s (from file %s)" % (k_new, os.path.split(results_file)[-1])
+            print("adding key %s (from file %s)" % (k_new, os.path.split(results_file)[-1]))
             all_results[k_new] = results[k]
             all_learn_options[k_new] = learn_options[k]
             num_added = num_added +1
@@ -1205,8 +1207,8 @@ def ensemble_cluster_results(directory=r'\\fusi1\crispr2\analysis\cluster\result
     # spearmans = []
     # for gene in ens_predictions.keys():
     #     spearmans.append(sp.stats.spearmanr(ens_predictions[gene], ens_truths[gene]['raw'])[0])
-    #     print gene, spearmans[-1]
-    # print "median: %.5f" % np.median(spearmans)
+    #     print(gene, spearmans[-1])
+    # print("median: %.5f" % np.median(spearmans))
 
     return all_results, all_learn_options
 
@@ -1245,13 +1247,13 @@ def plot_old_vs_new_feat(results, models, fontsize=20, filename=None, print_outp
         feat_AUC_se.append(np.std(metrics_feat['AUC']))
 
 
-    print "old features"
-    print "mean: " + str(base_spearman_means)
-    print "std: " + str(base_spearman_std)
+    print("old features")
+    print("mean: " + str(base_spearman_means))
+    print("std: " + str(base_spearman_std))
 
-    print "old + new features"
-    print "mean: " + str(feat_spearman_means)
-    print "std: " + str(feat_spearman_std)
+    print("old + new features")
+    print("mean: " + str(feat_spearman_means))
+    print("std: " + str(feat_spearman_std))
 
     plt.figure()
     ind = np.arange(len(models))
@@ -1322,7 +1324,7 @@ if __name__ == '__main__':
         X, Y = combine_organisms()
         X.to_pickle('../data/X.pd') #sequence features (i.e. inputs to prediction)
         Y.to_pickle('../data/Y.pd') #cell-averaged ranks, plus more (i.e. possible targets for prediction)
-        print "done writing to file"
+        print("done writing to file")
     elif V =="2":
         # this is now all in predict.py
         pass

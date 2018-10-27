@@ -65,7 +65,7 @@ percent_peptides = np.array([0.18, 0.18, 0.35])
 predictions = azimuth.model_comparison.predict(sequences, amino_acid_cut_positions, percent_peptides)
 
 for i, prediction in enumerate(predictions):
-    print sequences[i], prediction
+    print("%s %f" % (sequences[i], prediction))
 ```
 
 Output:
@@ -87,5 +87,3 @@ Sometimes the pre-computed .pickle files in the saved_models directory are incom
 #### Contacting us
 
 You can submit bug reports using the GitHub issue tracker. If you have any other questions, please contact us at crispr@lists.research.microsoft.com.
-
-

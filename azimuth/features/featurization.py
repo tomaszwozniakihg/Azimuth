@@ -21,7 +21,7 @@ def featurize_data(data, learn_options, Y, gene_position, pam_audit=True, length
     assert num_lengths == 1, "should only have sequences of a single length, but found %s: %s" % (num_lengths, str(unique_lengths))
 
     if not quiet:
-        print "Constructing features..."
+        print("Constructing features...")
     t0 = time.time()
 
     feature_sets = {}
@@ -49,7 +49,7 @@ def featurize_data(data, learn_options, Y, gene_position, pam_audit=True, length
         feature_sets["Percent Peptide <50%"]['Percent Peptide <50%'] = feature_sets["Percent Peptide <50%"].pop("Percent Peptide")
 
     if learn_options["include_gene_effect"]:
-        print "including gene effect"
+        print("including gene effect")
         gene_names = Y['Target gene']
         enc = sklearn.preprocessing.OneHotEncoder()
         label_encoder = sklearn.preprocessing.LabelEncoder()
@@ -95,7 +95,7 @@ def featurize_data(data, learn_options, Y, gene_position, pam_audit=True, length
 
     t1 = time.time()
     if not quiet:
-        print "\t\tElapsed time for constructing features is %.2f seconds" % (t1-t0)
+        print("\t\tElapsed time for constructing features is %.2f seconds" % (t1-t0))
 
     check_feature_set(feature_sets)
 
@@ -138,8 +138,8 @@ def NGGX_interaction_feature(data, pam_audit=True):
     for seq in sequence:
         if pam_audit and seq[25:27] != "GG":
             raise Exception("expected GG but found %s" % seq[25:27])
-        NX = seq[24]+seq[27]        
-        NX_onehot = nucleotide_features(NX,order=2, feature_type='pos_dependent', max_index_to_use=2, prefix="NGGX")        
+        NX = seq[24]+seq[27]
+        NX_onehot = nucleotide_features(NX,order=2, feature_type='pos_dependent', max_index_to_use=2, prefix="NGGX")
         # NX_onehot[:] = np.random.rand(NX_onehot.shape[0]) ##TESTING RANDOM FEATURE
         feat_NX = pandas.concat([feat_NX, NX_onehot], axis=1)
     return feat_NX.T
@@ -148,7 +148,7 @@ def NGGX_interaction_feature(data, pam_audit=True):
 def get_all_order_nuc_features(data, feature_sets, learn_options, maxorder, max_index_to_use, prefix="", quiet=False):
     for order in range(1, maxorder+1):
         if not quiet:
-            print "\t\tconstructing order %s features" % order
+            print("\t\tconstructing order %s features" % order)
         nuc_features_pd, nuc_features_pi = apply_nucleotide_features(data, order, learn_options["num_proc"],
                                                                      include_pos_independent=True, max_index_to_use=max_index_to_use, prefix=prefix)
         feature_sets['%s_nuc_pd_Order%i' % (prefix, order)] = nuc_features_pd
@@ -157,7 +157,7 @@ def get_all_order_nuc_features(data, feature_sets, learn_options, maxorder, max_
         check_feature_set(feature_sets)
 
         if not quiet:
-            print "\t\t\t\t\t\t\tdone"
+            print("\t\t\t\t\t\t\tdone")
 
 
 def countGC(s, length_audit=True):
@@ -202,7 +202,7 @@ def organism_feature(data):
 def get_micro_homology_features(gene_names, learn_options, X):
     # originally was flipping the guide itself as necessary, but now flipping the gene instead
 
-    print "building microhomology features"
+    print("building microhomology features")
     feat = pandas.DataFrame(index=X.index)
     feat["mh_score"] = ""
     feat["oof_score"] = ""
@@ -215,7 +215,7 @@ def get_micro_homology_features(gene_names, learn_options, X):
         for gene in gene_names.unique():
             gene_seq = Seq.Seq(util.get_gene_sequence(gene)).reverse_complement()
             guide_inds = np.where(gene_names.values == gene)[0]
-            print "getting microhomology for all %d guides in gene %s" % (len(guide_inds), gene)
+            print("getting microhomology for all %d guides in gene %s" % (len(guide_inds), gene))
             for j, ps in enumerate(guide_inds):
                 guide_seq = Seq.Seq(X['30mer'][ps])
                 strand = X['Strand'][ps]
@@ -227,18 +227,18 @@ def get_micro_homology_features(gene_names, learn_options, X):
                     gene_seq = gene_seq.reverse_complement()
                     ind = gene_seq.find(guide_seq)
                     #assert ind != -1, "still didn't work"
-                    #print "shouldn't get here"
+                    #print("shouldn't get here")
                 else:
-                    #print "all good"
+                    #print("all good")
                     pass
                 #assert ind != -1, "could not find guide in gene"
                 if ind==-1:
-                    #print "***could not find guide %s for gene %s" % (str(guide_seq), str(gene))
+                    #print("***could not find guide %s for gene %s" % (str(guide_seq), str(gene)))
                     #if.write(str(gene) + "," + str(guide_seq))
                     mh_score = 0
                     oof_score = 0
                 else:
-                    #print "worked"
+                    #print("worked")
 
                     assert gene_seq[ind:(ind+len(guide_seq))]==guide_seq, "match not right"
                     left_win = gene_seq[(ind - k_mer_length_left):ind]
@@ -258,14 +258,14 @@ def get_micro_homology_features(gene_names, learn_options, X):
 
                 feat.ix[ps,"mh_score"] = mh_score
                 feat.ix[ps,"oof_score"] = oof_score
-            print "computed microhomology of %s" % (str(gene))
+            print("computed microhomology of %s" % (str(gene)))
 
     return pandas.DataFrame(feat, dtype='float')
 
 
 def local_gene_seq_features(gene_names, learn_options, X):
 
-    print "building local gene sequence features"
+    print("building local gene sequence features")
     feat = pandas.DataFrame(index=X.index)
     feat["gene_left_win"] = ""
     feat["gene_right_win"] = ""
@@ -300,7 +300,7 @@ def local_gene_seq_features(gene_names, learn_options, X):
             assert len(left_win)==len(right_win), "k_mer_context, %s, is too large" % k_mer_length
             feat.ix[ps,"gene_left_win"] = left_win.tostring()
             feat.ix[ps,"gene_right_win"] = right_win.tostring()
-        print "featurizing local context of %s" % (gene)
+        print("featurizing local context of %s" % (gene))
 
     feature_sets = {}
     get_all_order_nuc_features(feat["gene_left_win"], feature_sets, learn_options, learn_options["order"], max_index_to_use=sys.maxint, prefix="gene_left_win")
@@ -341,11 +341,11 @@ def gene_guide_feature(Y, X, learn_options):
     gene_file = r"..\data\gene_seq_feat_V%s_km%s.ord%s.pickle" % (learn_options['V'], learn_options['include_gene_guide_feature'], learn_options['order'])
 
     if False: #os.path.isfile(gene_file): #while debugging, comment out
-        print "loading local gene seq feats from file %s" % gene_file
+        print("loading local gene seq feats from file %s" % gene_file)
         with open(gene_file, "rb") as f: feature_sets = pickle.load(f)
     else:
         feature_sets = local_gene_seq_features(Y['Target gene'], learn_options, X)
-        print "writing local gene seq feats to file %s" % gene_file
+        print("writing local gene seq feats to file %s" % gene_file)
         with open(gene_file, "wb") as f: pickle.dump(feature_sets, f)
 
     return feature_sets
@@ -383,11 +383,11 @@ def Tm_feature(data, pam_audit=True, learn_options=None):
         featarray[i,2] = Tm.Tm_staluc(seq[segments[1][0]:segments[1][1]], rna=rna)   #8-mer
         featarray[i,3] = Tm.Tm_staluc(seq[segments[2][0]:segments[2][1]], rna=rna)      #5-mer
 
-        #print "CRISPR"
+        #print("CRISPR")
         #for d in range(4):
-        #    print featarray[i,d]
+        #    print(featarray[i,d])
         #import ipdb; ipdb.set_trace()
-    
+
 
     feat = pandas.DataFrame(featarray, index=data.index, columns=["Tm global_%s" % rna, "5mer_end_%s" %rna, "8mer_middle_%s" %rna, "5mer_start_%s" %rna])
 
@@ -442,7 +442,7 @@ def nucleotide_features(s, order, max_index_to_use, prefix="", feature_type='all
     '''
     assert feature_type in ['all', 'pos_independent', 'pos_dependent']
     if max_index_to_use <= len(s):
-        #print "WARNING: trimming max_index_to use down to length of string=%s" % len(s)
+        #print("WARNING: trimming max_index_to use down to length of string=%s" % len(s))
         max_index_to_use = len(s)
 
     if max_index_to_use is not None:
@@ -493,7 +493,7 @@ def nucleotide_features(s, order, max_index_to_use, prefix="", feature_type='all
             return res
 
     res = pandas.Series(features_pos_dependent, index=index_dependent)
-    assert not np.any(np.isnan(res.values))    
+    assert not np.any(np.isnan(res.values))
     return res
 
 def nucleotide_features_dictionary(prefix=''):
@@ -537,7 +537,7 @@ def normalize_feature_sets(feature_sets):
     zero-mean, unit-variance each feature within each set
     '''
 
-    print "Normalizing features..."
+    print("Normalizing features...")
     t1 = time.time()
 
     new_feature_sets = {}
@@ -547,6 +547,6 @@ def normalize_feature_sets(feature_sets):
              raise Exception("found Nan feature values in set=%s" % set)
          assert new_feature_sets[set].shape[1] > 0, "0 columns of features"
     t2 = time.time()
-    print "\t\tElapsed time for normalizing features is %.2f seconds" % (t2-t1)
+    print("\t\tElapsed time for normalizing features is %.2f seconds" % (t2-t1))
 
     return new_feature_sets

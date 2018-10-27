@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import sklearn
 from sklearn.svm import LinearSVC
@@ -62,11 +63,11 @@ def doench_on_fold(feature_sets, train, test, y, y_all, X, dim, dimsum, learn_op
             assert np.nan not in tpr, "found nan tpr"
             roc_auc = sklearn.metrics.auc(fpr, tpr)
             if verbose:
-                print j, i, roc_auc
+                print(j, i, roc_auc)
             cv_results[j][i] = roc_auc
 
     best_penalty = penalty[np.argmax(np.mean(cv_results, axis=0))]
-    print "best AUC for penalty: ", np.median(cv_results, axis=0)
+    print("best AUC for penalty: ", np.median(cv_results, axis=0))
     clf = LinearSVC(penalty='l1', C=best_penalty, dual=False, class_weight=auto_class_weight)
     clf.fit(X[train], y_bin[train].flatten())
     non_zero_coeff = (clf.coef_ != 0.0)
@@ -92,6 +93,3 @@ def SVC_on_fold(feature_sets, train, test, y, y_all, X, dim, dimsum, learn_optio
     #y_pred = clf.predict(X[test])[:, None] # this returns 0/1
     y_pred = clf.decision_function(X[test])[:, None]
     return y_pred, clf
-
-
-    

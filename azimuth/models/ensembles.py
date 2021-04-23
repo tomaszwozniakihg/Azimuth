@@ -10,7 +10,7 @@ import sklearn
 import sklearn.tree as tree
 from sklearn import svm
 from sklearn.grid_search import GridSearchCV
-from sklearn.cross_validation import cross_val_score
+from sklearn.model_selection import cross_val_score
 
 def spearman_scoring(clf, X, y):
     y_pred = clf.predict(X).flatten()
@@ -53,7 +53,7 @@ def adaboost_on_fold(feature_sets, train, test, y, y_all, X, dim, dimsum, learn_
                     # label_encoder.fit(y_all['Target gene'].values[train])
                     # gene_classes = label_encoder.transform(y_all['Target gene'].values[train])
                     # n_folds = len(np.unique(gene_classes))
-                    cv = sklearn.cross_validation.KFold(y_all['Target gene'].values[train].shape[0], n_folds=20, shuffle=True)
+                    cv = sklearn.model_selection.KFold(y_all['Target gene'].values[train].shape[0], n_folds=20, shuffle=True)
                     est = en.GradientBoostingRegressor(n_estimators=1000, learning_rate=params['learning_rate'], max_depth=params['max_depth'],
                                                        min_samples_leaf=params['min_samples_leaf'], max_features=params['max_features'], random_state=learn_options['seed'])
                     scorer = cross_val_score(est, X[train], y[train].flatten(), cv=cv, n_jobs=20)
@@ -95,8 +95,8 @@ def adaboost_on_fold(feature_sets, train, test, y, y_all, X, dim, dimsum, learn_
                  # label_encoder.fit(y_all['Target gene'].values[train])
                  # gene_classes = label_encoder.transform(y_all['Target gene'].values[train])
                  n_folds = 10 # len(np.unique(gene_classes))
-                 # cv = sklearn.cross_validation.StratifiedKFold(gene_classes, n_folds=n_folds, shuffle=True)
-                 cv = sklearn.cross_validation.KFold(X[train].shape[0], n_folds=n_folds, shuffle=True)
+                 # cv = sklearn.model_selection.StratifiedKFold(gene_classes, n_folds=n_folds, shuffle=True)
+                 cv = sklearn.model_selection.KFold(X[train].shape[0], n_folds=n_folds, shuffle=True)
 
                  est = en.GradientBoostingRegressor(loss=learn_options['adaboost_loss'], random_state=learn_options['seed'])#, n_estimators=learn_options['adaboost_n_estimators'])
                  clf = GridSearchCV(est, param_grid, n_jobs=n_jobs, verbose=1, cv=cv, scoring=spearman_scoring, iid=False)

@@ -2,7 +2,7 @@ import numpy as np
 import sklearn
 from sklearn.metrics import roc_curve, auc
 import sklearn.metrics
-import sklearn.cross_validation
+import sklearn.model_selection
 import copy
 import util
 import time
@@ -175,7 +175,7 @@ def cross_validate(y_all, feature_sets, learn_options=None, TEST=False, train_ge
         else:
             n_folds = len(learn_options['all_genes'])
 
-        cv = sklearn.cross_validation.StratifiedKFold(gene_classes, n_folds=n_folds, shuffle=True)
+        cv = sklearn.model_selection.StratifiedKFold(gene_classes, n_folds=n_folds, shuffle=True)
         fold_labels = ["fold%d" % i for i in range(1,n_folds+1)]
         if learn_options['num_genes_remove_train'] is not None:
             raise NotImplementedException()

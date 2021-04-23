@@ -277,7 +277,7 @@ def set_up_inner_folds(learn_options, y):
             n_folds = len(np.unique(gene_classes))
         else:
             n_folds = learn_options['n_folds']
-        cv = sklearn.cross_validation.StratifiedKFold(gene_classes, n_folds=n_folds, shuffle=True)
+        cv = sklearn.model_selection.StratifiedKFold(gene_classes, n_folds=n_folds, shuffle=True)
     elif learn_options["cv"] == "gene":
         gene_list = np.unique(y['Target gene'].values)
         cv = []
